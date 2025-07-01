@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  /* Prevent zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  
+  /* Safe area support for mobile devices */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Touch-friendly buttons */
+  button {
+    min-height: 44px;
+  }
+}
+
+/* Native app specific styles */
+.capacitor-native {
+  /* Ensure full viewport usage */
+  height: 100vh;
+  height: -webkit-fill-available;
+}
