@@ -5,8 +5,9 @@ import { useCamera } from '../../hooks/useCamera';
 import { FacialMeasurements } from '../../types';
 import GlassCard from '../ui/GlassCard';
 import Button from '../ui/Button';
-import { FaceMesh } from '@mediapipe/face_mesh';
+import { FaceMesh, Results, NormalizedLandmark } from '@mediapipe/face_mesh';
 import BrowSimulator from './BrowSimulator';
+import MobileCameraView from './MobileCameraView';
 
 interface CameraViewProps {
   onMeasurementsReady: (measurements: FacialMeasurements) => void;
@@ -16,7 +17,7 @@ const CameraView: React.FC<CameraViewProps> = ({ onMeasurementsReady }) => {
   const { isActive, videoRef, error, startCamera, stopCamera } = useCamera();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [measurements, setMeasurements] = useState<FacialMeasurements | null>(null);
-  const [landmarks, setLandmarks] = useState<any[]>([]);
+  const [landmarks, setLandmarks] = useState<NormalizedLandmark[]>([]);
   const [noFace, setNoFace] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
   const animationRef = useRef<number | null>(null);
@@ -61,7 +62,7 @@ const CameraView: React.FC<CameraViewProps> = ({ onMeasurementsReady }) => {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       // Run FaceMesh
       await new Promise((resolve) => {
-        faceMesh.onResults((results: any) => {
+        faceMesh.onResults((results: Results) => {
           if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
             setNoFace(true);
             setMeasurements(null);
@@ -74,9 +75,6 @@ const CameraView: React.FC<CameraViewProps> = ({ onMeasurementsReady }) => {
             const leftBrowStart = landmarks[70];
             const leftBrowArch = landmarks[105];
             const leftBrowEnd = landmarks[107];
-            const rightBrowStart = landmarks[336];
-            const rightBrowArch = landmarks[334];
-            const rightBrowEnd = landmarks[276];
             const leftEyeInner = landmarks[133];
             const rightEyeInner = landmarks[362];
             const faceLeft = landmarks[234];
@@ -130,8 +128,7 @@ const CameraView: React.FC<CameraViewProps> = ({ onMeasurementsReady }) => {
   }, []);
 
   if (Capacitor.isNativePlatform()) {
-    // For mobile, keep using MobileCameraView (not live yet)
-    const MobileCameraView = require('./MobileCameraView').default;
+    // For mobile, use the mobile-specific camera view
     return <MobileCameraView onMeasurementsReady={onMeasurementsReady} />;
   }
 

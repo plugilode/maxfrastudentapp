@@ -4,7 +4,6 @@ import {
   User, 
   Camera, 
   Palette, 
-  Globe, 
   Shield, 
   Bell,
   Download,
@@ -35,7 +34,7 @@ const Settings: React.FC = () => {
     { id: 'notifications', label: 'Notificaciones', icon: Bell }
   ];
 
-  const handleSettingChange = (key: string, value: any) => {
+  const handleSettingChange = (key: string, value: boolean | string) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { FacialMeasurements } from '../types';
-import { FaceMesh } from '@mediapipe/face_mesh';
+import { FaceMesh, Results } from '@mediapipe/face_mesh';
 
 // Helper: Convert base64 image to HTMLImageElement
 function loadImage(base64: string): Promise<HTMLImageElement> {
@@ -47,7 +47,7 @@ export const useFacialAnalysis = () => {
       });
 
       // Run FaceMesh on the image
-      const results = await new Promise<any>((resolve, reject) => {
+      const results = await new Promise<Results>((resolve) => {
         faceMesh.onResults(resolve);
         faceMesh.send({ image: canvas });
       });
@@ -64,9 +64,6 @@ export const useFacialAnalysis = () => {
       const leftBrowStart = landmarks[70];
       const leftBrowArch = landmarks[105];
       const leftBrowEnd = landmarks[107];
-      const rightBrowStart = landmarks[336];
-      const rightBrowArch = landmarks[334];
-      const rightBrowEnd = landmarks[276];
       const leftEyeInner = landmarks[133];
       const rightEyeInner = landmarks[362];
       const faceLeft = landmarks[234];

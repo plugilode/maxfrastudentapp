@@ -1,6 +1,10 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User } from '../types';
 
+interface StoredUser extends User {
+  password: string;
+}
+
 interface AuthContextType {
   user: User | null;
   login: (username: string, password: string, isAdmin?: boolean) => Promise<boolean>;
@@ -23,7 +27,6 @@ export const useAuth = () => {
   return context;
 };
 
-const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin123';
 const ADMIN_EMAIL = 'admin@maxfraacademy.com';
 
@@ -81,11 +84,11 @@ function seedAdmin() {
 export const useAuthProvider = (): AuthContextType => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<StoredUser[]>([]);
 
   useEffect(() => {
     seedAdmin();
-    const storedUsers = JSON.parse(localStorage.getItem('maxfra_users') || '[]');
+    const storedUsers: StoredUser[] = JSON.parse(localStorage.getItem('maxfra_users') || '[]');
     setUsers(storedUsers);
     const storedUser = localStorage.getItem('maxfra_user');
     if (storedUser) {
@@ -94,7 +97,7 @@ export const useAuthProvider = (): AuthContextType => {
     setIsLoading(false);
   }, []);
 
-  const saveUsers = (newUsers: any[]) => {
+  const saveUsers = (newUsers: StoredUser[]) => {
     setUsers(newUsers);
     localStorage.setItem('maxfra_users', JSON.stringify(newUsers));
   };
@@ -102,8 +105,8 @@ export const useAuthProvider = (): AuthContextType => {
   const login = async (username: string, password: string, isAdmin = false): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const storedUsers = JSON.parse(localStorage.getItem('maxfra_users') || '[]');
-      const found = storedUsers.find((u: any) =>
+      const storedUsers: StoredUser[] = JSON.parse(localStorage.getItem('maxfra_users') || '[]');
+      const found = storedUsers.find((u: StoredUser) =>
         (isAdmin ? u.isAdmin : !u.isAdmin) &&
         (u.email === username || u.id === username) &&
         u.password === password
@@ -145,7 +148,7 @@ export const useAuthProvider = (): AuthContextType => {
   const addUser = async (userData: Omit<User, 'id' | 'createdAt' | 'isApproved' | 'isAdmin'>): Promise<boolean> => {
     const exists = users.find(u => u.email === userData.email);
     if (exists) return false;
-    const newUser: any = {
+    const newUser: StoredUser = {
       ...userData,
       id: Date.now().toString(),
       createdAt: new Date(),

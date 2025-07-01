@@ -16,7 +16,7 @@ type DashboardView = 'home' | 'analysis' | 'results' | 'lessons' | 'profile' | '
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
-  const { success, error } = useToast();
+  const { success } = useToast();
   const [currentView, setCurrentView] = useState<DashboardView>('home');
   const [measurements, setMeasurements] = useState<FacialMeasurements | null>(null);
 
@@ -31,7 +31,7 @@ const Dashboard: React.FC = () => {
     success('Nuevo análisis iniciado', 'Posiciona tu rostro en el centro');
   };
 
-  const handleLessonStart = (lessonId: string) => {
+  const handleLessonStart = () => {
     success('Lección iniciada', 'Preparando contenido...');
   };
 

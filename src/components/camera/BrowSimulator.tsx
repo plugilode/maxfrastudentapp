@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import GlassCard from '../ui/GlassCard';
 import Button from '../ui/Button';
 import { useTranslation } from '../../i18n';
@@ -124,8 +124,6 @@ const BrowSimulator: React.FC<BrowSimulatorProps> = ({ image, landmarks, onClose
   const [brushSize, setBrushSize] = useState(16);
   const [eraserSize, setEraserSize] = useState(24);
   const [shadeOpacity, setShadeOpacity] = useState(0.4);
-  const [mask, setMask] = useState<null | HTMLCanvasElement>(null);
-  const [shading, setShading] = useState<null | HTMLCanvasElement>(null);
   const [undoStack, setUndoStack] = useState<{ mask: string | null; shading: string | null }[]>([]);
   const [redoStack, setRedoStack] = useState<{ mask: string | null; shading: string | null }[]>([]);
   const [savedDesigns, setSavedDesigns] = useState<{ name: string; mask: string | null; shading: string | null; template: string; color: string; thickness: number; opacity: number }[]>([]);
@@ -149,7 +147,7 @@ const BrowSimulator: React.FC<BrowSimulatorProps> = ({ image, landmarks, onClose
   }, [selected]);
 
   // Multi-level undo/redo
-  const pushUndo = () => {
+  const pushUndo = useCallback(() => {
     setUndoStack((stack) => [
       {
         mask: maskCanvasRef.current?.toDataURL() || null,
@@ -158,8 +156,8 @@ const BrowSimulator: React.FC<BrowSimulatorProps> = ({ image, landmarks, onClose
       ...stack.slice(0, 19)
     ]);
     setRedoStack([]);
-  };
-  const handleUndo = () => {
+  }, []);
+  const handleUndo = useCallback(() => {
     if (undoStack.length === 0) return;
     const last = undoStack[0];
     setRedoStack((stack) => [{
@@ -185,8 +183,8 @@ const BrowSimulator: React.FC<BrowSimulatorProps> = ({ image, landmarks, onClose
       img.src = last.shading;
     }
     setUndoStack((stack) => stack.slice(1));
-  };
-  const handleRedo = () => {
+  }, [undoStack]);
+  const handleRedo = useCallback(() => {
     if (redoStack.length === 0) return;
     const next = redoStack[0];
     setUndoStack((stack) => [{
@@ -212,7 +210,7 @@ const BrowSimulator: React.FC<BrowSimulatorProps> = ({ image, landmarks, onClose
       img.src = next.shading;
     }
     setRedoStack((stack) => stack.slice(1));
-  };
+  }, [redoStack]);
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -226,7 +224,7 @@ const BrowSimulator: React.FC<BrowSimulatorProps> = ({ image, landmarks, onClose
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [undoStack, redoStack]);
+  }, [undoStack, redoStack, handleUndo, handleRedo]);
 
   // Save/load designs (localStorage)
   useEffect(() => {
@@ -435,21 +433,6 @@ const BrowSimulator: React.FC<BrowSimulatorProps> = ({ image, landmarks, onClose
     );
   };
 
-  // Helper: draw on mask/shading canvas
-  const handleOverlayDraw = (e: React.MouseEvent, type: 'erase' | 'shade') => {
-    const canvas = type === 'erase' ? mask : shading;
-    if (!canvas) return;
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.globalCompositeOperation = type === 'erase' ? 'destination-out' : 'source-over';
-    ctx.beginPath();
-    ctx.arc(x, y, type === 'erase' ? eraserSize : brushSize, 0, 2 * Math.PI);
-    ctx.fillStyle = type === 'erase' ? '#000' : `rgba(139,92,246,${shadeOpacity})`;
-    ctx.fill();
-  };
 
   // Helper: Render the current view to a canvas and return base64
   const captureSimulated = async () => {
