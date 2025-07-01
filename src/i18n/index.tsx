@@ -37,6 +37,7 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTranslation = () => {
   const ctx = useContext(I18nContext);
   if (!ctx) throw new Error('useTranslation must be used within I18nProvider');
