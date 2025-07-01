@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Camera, CameraResultType, CameraSource, PermissionStatus } from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 
 export const useMobileCamera = () => {
@@ -26,8 +26,8 @@ export const useMobileCamera = () => {
       });
 
       return image.dataUrl || null;
-    } catch (err: any) {
-      const errorMessage = err?.message || 'Error desconocido';
+    } catch (err: unknown) {
+      const errorMessage = (err as { message?: string })?.message || 'Error desconocido';
       setError(`Error al capturar la imagen: ${errorMessage}`);
       console.error('Mobile camera error:', err);
       return null;

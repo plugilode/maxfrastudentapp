@@ -1,7 +1,5 @@
 import React from 'react';
-import { Capacitor } from '@capacitor/core';
 import { useAuth } from './hooks/useAuth';
-import { useToast } from './hooks/useToast';
 import AuthProvider from './components/auth/AuthProvider';
 import AuthScreen from './components/auth/AuthScreen';
 import Dashboard from './components/dashboard/Dashboard';

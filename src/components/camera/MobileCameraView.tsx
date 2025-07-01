@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Camera, Smartphone, Loader2 } from 'lucide-react';
+import { Smartphone, Loader2 } from 'lucide-react';
 import { FacialMeasurements } from '../../types';
 import GlassCard from '../ui/GlassCard';
 import Button from '../ui/Button';
-import { FaceMesh } from '@mediapipe/face_mesh';
+import { FaceMesh, Results } from '@mediapipe/face_mesh';
 
 interface MobileCameraViewProps {
   onMeasurementsReady: (measurements: FacialMeasurements) => void;
@@ -33,7 +33,7 @@ const MobileCameraView: React.FC<MobileCameraViewProps> = ({ onMeasurementsReady
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
-    } catch (err) {
+    } catch {
       setError('No se pudo acceder a la cámara.');
     }
   };
@@ -83,7 +83,7 @@ const MobileCameraView: React.FC<MobileCameraViewProps> = ({ onMeasurementsReady
       if (!ctx) return;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       await new Promise((resolve) => {
-        faceMesh.onResults((results: any) => {
+        faceMesh.onResults((results: Results) => {
           if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
             setNoFace(true);
             setMeasurements(null);
@@ -93,9 +93,6 @@ const MobileCameraView: React.FC<MobileCameraViewProps> = ({ onMeasurementsReady
             const leftBrowStart = landmarks[70];
             const leftBrowArch = landmarks[105];
             const leftBrowEnd = landmarks[107];
-            const rightBrowStart = landmarks[336];
-            const rightBrowArch = landmarks[334];
-            const rightBrowEnd = landmarks[276];
             const leftEyeInner = landmarks[133];
             const rightEyeInner = landmarks[362];
             const faceLeft = landmarks[234];

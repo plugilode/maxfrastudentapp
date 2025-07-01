@@ -52,7 +52,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
       email: formData.email,
       role: 'student',
       password: formData.password
-    } as any);
+    });
 
     if (!success) {
       setErrors({ general: t('register.exists') });
